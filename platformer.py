@@ -27,6 +27,7 @@ import sys, random, time, shelve
 import pygame
 from pygame.locals import *  # noqa: F403
 import pygame_menu
+from pygame_menu import sound
 import pygame_menu.controls as ctrl
 ctrl.KEY_APPLY = pygame.K_SPACE
 
@@ -44,6 +45,10 @@ class G:
     GREEN = (2,147,87)
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
+
+    UISOUND = sound.Sound()
+    #UISOUND.set_sound(sound.SOUND_TYPE_WIDGET_SELECTION,'')
+
 
 class timers:
     FPS = 60
@@ -315,6 +320,12 @@ def restart():
     game_var.game_over = False
     time.sleep(1)
 
+def reset_score():
+    shelfFile = shelve.open('score')
+    shelfFile['score'] = 0
+    shelfFile.close()
+
+
 #___MENUS then SCENES__#
 #Menu using Pygame_Menu
 mytheme = pygame_menu.themes.THEME_DEFAULT.copy()
@@ -334,13 +345,26 @@ mytheme.widget_font_size = 24
 mytheme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
 
 startmenu = pygame_menu.Menu('', 200, 400, theme=mytheme)
+startmenu.set_sound(G.UISOUND, recursive=True)
 startmenu.column_min_width = 150
 start_play = startmenu.add.button('  PLAY  ', start_the_game)
+start_reset = startmenu.add.button('Reset', reset_score)
 start_quit = startmenu.add.button('  QUIT  ', pygame_menu.events.EXIT)
 start_play.set_max_width(100)
+start_reset.set_max_width(100)
 start_quit.set_max_width(100)
 
+def passthis():
+    pass
+
+clear_score_menu = pygame_menu.Menu('', 200,200,theme=mytheme)
+clear_score_menu.set_sound(G.UISOUND)
+clear_score_menu_yes = clear_score_menu.add.button('Yes', reset_score)
+clear_score_menu_no = clear_score_menu.add.button('No', pygame_menu.events.BACK)
+
+
 gameover = pygame_menu.Menu('', display.WIDTH, 400, theme=mytheme)
+startmenu.set_sound(G.UISOUND, recursive=True)
 gor = gameover.add.button(' RESTART ',restart)
 goq = gameover.add.button('  QUIT  ',pygame_menu.events.EXIT)
 gor.set_max_width(100)
